@@ -18,12 +18,6 @@ public class MainFragment extends Fragment {
 	private MyCountDownTimer myCountDownTimer;
 	private long settime;
 
-	private void setCountDownView(final long hour, final long minitu) {
-		// myCountDownTimer = new MyCountDownTimer(String.format("%02f:%02f",
-		// hour, minitu), 1000l);
-		// countDownView.setText(String.format("%02f:%02f", hour, minitu)
-	}
-
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 		final View fragmentView = inflater.inflate(R.layout.fragment_main, container);
