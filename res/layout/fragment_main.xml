@@ -62,10 +62,9 @@
 
     <ImageView
         android:id="@+id/imageView1"
-        android:layout_width="110dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_weight="0.70"
-        android:src="@drawable/abc_ic_clear_holo_light" />
+        android:src="@drawable/img" />
 
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -17,41 +18,63 @@ public class MainFragment extends Fragment {
 	private TextView countDownView;
 	private MyCountDownTimer myCountDownTimer;
 	private long settime;
+	private ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_SYSTEM, 30);
+	private ImageView image;
+	private long count;
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 		final View fragmentView = inflater.inflate(R.layout.fragment_main, container);
-		// 時間設定
 		final Button btnDialog = (Button) fragmentView.findViewById(R.id.btn_dialog_open);
+		final Button btn_start = (Button) fragmentView.findViewById(R.id.btn_start);
+		final Button btn_stop = (Button) fragmentView.findViewById(R.id.btn_stop);
+		btn_stop.setEnabled(false);
+		image = (ImageView) fragmentView.findViewById(R.id.imageView1);
+		imageOutput(2);
+		// 時間設定
 		btnDialog.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(final View v) {
 				showTimePickerDialog(fragmentView);
+				btn_stop.setEnabled(false);
 			}
 		});
 		// 開始ボタン
-		final Button btn_start = (Button) fragmentView.findViewById(R.id.btn_start);
 		btn_start.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(final View v) {
 				// カウントダウンView
 				countDownView = (TextView) fragmentView.findViewById(R.id.label_dialog_text);
-				// long settime = R.id.label_dialog_text / 60;
-				myCountDownTimer = new MyCountDownTimer(settime, 1000l);
+				myCountDownTimer = new MyCountDownTimer(settime, 500l);
 				myCountDownTimer.start();
+				btnDialog.setEnabled(false);
 				btn_start.setEnabled(false);
+				btn_stop.setEnabled(true);
+				imageOutput(2);
+				image.setImageResource(R.drawable.img);
 			}
 		});
 		// 停止ボタン
-		final Button btn_stop = (Button) fragmentView.findViewById(R.id.btn_stop);
 		btn_stop.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(final View v) {
+				myCountDownTimer.cancel();
+				btnDialog.setEnabled(true);
 				btn_start.setEnabled(true);
+				imageOutput(2);
+				toneGenerator.stopTone();
 			}
 		});
 		// EditText
 		return super.onCreateView(inflater, container, savedInstanceState);
+	}
+
+	public void imageOutput(int set) {
+		if (set == 1) {
+			image.setVisibility(View.VISIBLE);
+		} else {
+			image.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	/**
@@ -67,7 +90,7 @@ public class MainFragment extends Fragment {
 			public void onTimeSet(final TimePicker view, final int hourOfDay, final int minute) {
 				// 設定 ボタンクリック時の処理
 				final TextView textView = (TextView) fragmentView.findViewById(R.id.label_dialog_text);
-				textView.setText(String.format("%02d : %02d", hourOfDay, minute));
+				textView.setText(String.format("%s : %s", hourOfDay, minute));
 				settime = (hourOfDay * 60 + minute) * 1000;
 			}
 		}, hour, minute, true);
@@ -85,16 +108,22 @@ public class MainFragment extends Fragment {
 
 		@Override
 		public void onTick(final long millisUntilFinished) {
-			countDownView.setText(String.format("%s:%s", Long.toString(millisUntilFinished / 1000 / 60),
+			countDownView.setText(String.format("%s : %s", Long.toString(millisUntilFinished / 1000 / 60),
 					Long.toString(millisUntilFinished / 1000 % 60)));
+			count = millisUntilFinished / 1000 % 3;
+			if (count == 0) {
+				imageOutput(1);
+			} else {
+				imageOutput(2);
+			}
 		}
 
 		@Override
 		public void onFinish() {
 			countDownView.setText(getResources().getString(R.string.time_up));
-			ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_SYSTEM, ToneGenerator.MAX_VOLUME);
-			toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
-			toneGenerator.stopTone();
+			toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD);
+			image.setImageResource(R.drawable.imgm);
+			imageOutput(1);
 		}
 	}
 }
